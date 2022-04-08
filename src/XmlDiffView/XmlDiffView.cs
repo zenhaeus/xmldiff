@@ -1960,8 +1960,8 @@ namespace Microsoft.XmlDiffPatch
                         <span class='ignore'>ignored</span><br/><br/>
                     </td></tr>");
             resultHtml.WriteLine("<tr><td><table border='0'>");
-            resultHtml.WriteLine("<tr><th>" + sourceXmlFile + "</th><th>" +
-                changedXmlFile + "</th></tr>" +
+            resultHtml.WriteLine("<tr><th></th><th>" + Path.GetFileNameWithoutExtension(sourceXmlFile) + "</th><th>" +
+                Path.GetFileNameWithoutExtension(changedXmlFile) + "</th></tr>" +
                 "<tr><td colspan='3'><hr size=1></td></tr>");
             if (identicalData)
             {
