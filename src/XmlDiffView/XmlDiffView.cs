@@ -774,7 +774,11 @@ namespace Microsoft.XmlDiffPatch
             XmlDiffViewOperation op)
         {
             pane.WriteStartElement("span");
-            pane.WriteAttributeString("class", op.ToString().ToLowerInvariant());
+            string opStr = op.ToString().ToLowerInvariant();
+            string noMatch = op != XmlDiffViewOperation.Match ? " no-match" : "";
+            string moved = op == XmlDiffViewOperation.MoveFrom || op == XmlDiffViewOperation.MoveTo ?
+                " moved" : "";
+            pane.WriteAttributeString("class", opStr + noMatch + moved);
         }
 
         /// <summary>
@@ -1934,7 +1938,6 @@ namespace Microsoft.XmlDiffPatch
             TextWriter resultHtml)
         {
             // this initializes the html
-            resultHtml.WriteLine("<html><head>");
             resultHtml.WriteLine(@"<html><head>
                 <style TYPE='text/css' MEDIA='screen'>
                 <!-- td { font-family: Courier New; font-size:14; } 
@@ -1942,24 +1945,113 @@ namespace Microsoft.XmlDiffPatch
                 p { font-family: Arial; } 
                 .match { }
                 .ignore { color:#AAAAAA; }
-                .add { background-color:yellow; }
+                .add { background-color:lightgreen; }
                 .moved { background-color:cyan; color:navy; }
-                .remove { background-color:red; }
-                .change {  background-color:lightgreen;  }
+                .remove { background-color:#ff726f; }
+                .change {  background-color:yellow;  }
+                strong.legend { margin-right:5px; margin-left:5px; padding:2px; }
+                div.legend a {
+                    background-color: #222;
+                    color: white;
+                    margin-left: 2px;
+                    margin-right: 2px;
+                    padding-left: 2px;
+                    padding-right: 2px;
+                }
+                div.legend a:hover { background-color: white; color: black; cursor:pointer; }
+                div.legend { 
+                    position:fixed;
+                    left:0px;
+                    top:0px;
+                    padding:12px;
+                    background-color:#EEE;;
+                    width:100%;
+                }
+                span#focus {
+                    border: 1px solid black;
+                }
                 -->
-            </style></head>
-            <body>
-                <table border='0' style='table-layout:fixed;' width='100%'>
+            </style>
+            </head>
+            <body style='margin-top:44px' onload='afterLoad()'>
+            <script>
+                var positions = {
+                    'add' : -1,
+                    'remove' : -1,
+                    'change' : -1,
+                    'moved' : -1,
+                    'ignore' : -1
+                }
+
+                function scrollToTargetAdjusted(c, dir){
+                    var elements = document.querySelectorAll('tr span.' + c);
+
+                    if(elements.length == 0) {
+                        return;
+                    }
+
+                    positions[c] = (positions[c] + dir) % elements.length;
+
+                    if(positions[c] < 0) {
+                        positions[c] = elements.length + positions[c];
+                    }
+
+                    var element = elements[positions[c]];
+                    var oldFocus = document.getElementById('focus');
+                    if(oldFocus != null) {
+                        oldFocus.id = '';
+                    }
+                    element.id = 'focus';
+                    var counter = document.querySelector('strong.' + c + '.legend span.counter')
+
+                    counter.innerHTML = positions[c] + 1;
+
+                    element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                }
+
+                function setCount(c) {
+                    var elements = document.querySelectorAll('tr span.' + c);
+                    document.querySelector('div strong.' + c + '.legend').innerHTML = 
+                        '<a onclick=""scrollToTargetAdjusted(\'' + c + '\', -1)"">&lt;</a>' +
+                        c +': <span class=""counter"">0</span> of ' + elements.length +
+                        ' <a onclick=""scrollToTargetAdjusted(\'' + c + '\', 1)"">&gt;</a>';
+                }
+
+                function afterLoad() {
+                    setCount('add');
+                    setCount('remove');
+                    setCount('change');
+                    setCount('moved');
+                    setCount('ignore');
+                }
+            </script>
+                <div class='legend'>
+                    <b style='margin-right:10px;'>Legend:</b> 
+                        <strong class='legend add'>
+                            added
+                        </strong>
+                        <strong class='legend remove'>
+                            removed
+                        </strong>
+                        <strong class='legend change'>
+                            changed
+                        </strong>
+                        <strong class='legend moved'>
+                            moved
+                        </strong>
+                        <strong class='legend ignore'>
+                            ignored
+                        </strong>
+                </div>
+                <table border='0' width='100%'>
                     <col width='20'><col width='50%'><col width='50%'>
-                    <tr><td><table border='0' width='100%'>
-                    <tr><td colspan='3' align='center'>
-                    <b>Legend:</b> <span class='add'>added</span>&nbsp;&nbsp;
-                        <span class='remove'>removed</span>&nbsp;&nbsp;
-                        <span class='change'>changed</span>&nbsp;&nbsp;
-                        <span class='moved'>moved</span>&nbsp;&nbsp;
-                        <span class='ignore'>ignored</span><br/><br/>
-                    </td></tr>");
-            resultHtml.WriteLine("<tr><td><table border='0'>");
+                    <tr><td style='width:100%;'><table border='0' width='100%'>
+                    ");
+            resultHtml.WriteLine("<tr><td style='width:100%;'><table border='0'>");
             resultHtml.WriteLine("<tr><th></th><th>" + Path.GetFileNameWithoutExtension(sourceXmlFile) + "</th><th>" +
                 Path.GetFileNameWithoutExtension(changedXmlFile) + "</th></tr>" +
                 "<tr><td colspan='3'><hr size=1></td></tr>");

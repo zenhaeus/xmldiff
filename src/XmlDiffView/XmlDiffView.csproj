@@ -1,24 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net4;net452;net46;net47;net48;netcoreapp3.1;net5.0</TargetFrameworks>
-    <PackageId>XmlDiffView</PackageId>
+    <TargetFrameworks>net472</TargetFrameworks>
+    <PackageId>XmlDiffCustom</PackageId>
     <Copyright>Copyright © Microsoft</Copyright>
     <Company>Lovett Software</Company>
-    <Authors>Chris Lovett</Authors>
+    <Authors>Chris Lovett, zenhaeus</Authors>
     <Product>XmlDiffView 1.0</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/microsoft/XmlNotepad/</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageIconUrl />
     <PackageTags>xml;xmldiff</PackageTags>
-    <AssemblyName>XmlDiffPatch.View</AssemblyName>
+    <AssemblyName>XmlDiffCustom.View</AssemblyName>
     <RootNamespace>Microsoft.XmlDiffPatch.View</RootNamespace>
     <AssemblyOriginatorKeyFile>$(MyKeyFile)</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <Description>Displays the results of an XML file comparison</Description>
     <DelaySign>false</DelaySign>
-    <Version>1.0.3</Version>
+    <Version>1.0.5</Version>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
